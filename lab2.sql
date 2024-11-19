@@ -48,27 +48,42 @@ WHERE
         WHERE co.country = 'Canada'
     );
 
-SELECT actor_id, COUNT(film_id) AS films_count
-FROM film_actor
-GROUP BY actor_id
-ORDER BY films_count DESC
-LIMIT 1;
-SELECT f.title
-FROM film_actor fa
-JOIN film f ON fa.film_id = f.film_id
-WHERE fa.actor_id = most_prolific_actor_id;
+-- Encontrar el actor más prolífico
+SELECT actor_id FROM (
+  SELECT actor_id, COUNT(film_id) AS films_count
+  FROM film_actor
+  GROUP BY actor_id ORDER BY films_count DESC LIMIT 1
+) AS most_prolific;
+
+-- Obtener las películas del actor más prolífico
+SELECT film.title 
+FROM film_actor 
+JOIN film ON film_actor.film_id = film.film_id 
+WHERE film_actor.actor_id = (SELECT actor_id FROM (
+  SELECT actor_id, COUNT(film_id) AS films_count
+  FROM film_actor
+  GROUP BY actor_id ORDER BY films_count DESC LIMIT 1
+) AS most_prolific);
 
 
+-- Encontrar el cliente más rentable
 SELECT customer_id 
 FROM payment 
 GROUP BY customer_id 
 ORDER BY SUM(amount) DESC 
 LIMIT 1;
-SELECT film.title
-FROM rental
+
+-- Obtener las películas del cliente más rentable
+SELECT film.title 
+FROM rental 
 JOIN inventory ON rental.inventory_id = inventory.inventory_id
 JOIN film ON inventory.film_id = film.film_id
-WHERE rental.customer_id = most_profitable_customer_id;
+WHERE rental.customer_id = (SELECT customer_id FROM (
+  SELECT customer_id, SUM(amount) AS total_amount_spent
+  FROM payment
+  GROUP BY customer_id
+  ORDER BY total_amount_spent DESC
+  LIMIT 1) AS most_profitable);
 
 
 SELECT 
