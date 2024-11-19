@@ -48,52 +48,27 @@ WHERE
         WHERE co.country = 'Canada'
     );
 
-SELECT 
-    a.actor_id, a.first_name, a.last_name, COUNT(fa.film_id) AS film_count
-FROM 
-    actor a
-JOIN 
-    film_actor fa ON a.actor_id = fa.actor_id
-GROUP BY 
-    a.actor_id, a.first_name, a.last_name
-ORDER BY 
-    film_count DESC
+SELECT actor_id, COUNT(film_id) AS films_count
+FROM film_actor
+GROUP BY actor_id
+ORDER BY films_count DESC
 LIMIT 1;
+SELECT f.title
+FROM film_actor fa
+JOIN film f ON fa.film_id = f.film_id
+WHERE fa.actor_id = most_prolific_actor_id;
 
 
-SELECT 
-    f.title
-FROM 
-    film f
-JOIN 
-    film_actor fa ON f.film_id = fa.film_id
-WHERE 
-    fa.actor_id = most_prolific_actor_id;
-
-
-SELECT 
-    c.customer_id, c.first_name, c.last_name, SUM(p.amount) AS total_spent
-FROM 
-    customer c
-JOIN 
-    payment p ON c.customer_id = p.customer_id
-GROUP BY 
-    c.customer_id, c.first_name, c.last_name
-ORDER BY 
-    total_spent DESC
+SELECT customer_id 
+FROM payment 
+GROUP BY customer_id 
+ORDER BY SUM(amount) DESC 
 LIMIT 1;
-
-
-SELECT 
-    f.title
-FROM 
-    rental r
-JOIN 
-    inventory i ON r.inventory_id = i.inventory_id
-JOIN 
-    film f ON i.film_id = f.film_id
-WHERE 
-    r.customer_id = most_profitable_customer_id;
+SELECT film.title
+FROM rental
+JOIN inventory ON rental.inventory_id = inventory.inventory_id
+JOIN film ON inventory.film_id = film.film_id
+WHERE rental.customer_id = most_profitable_customer_id;
 
 
 SELECT 
